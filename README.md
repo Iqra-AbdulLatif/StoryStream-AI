@@ -1,14 +1,26 @@
-# StoryStream-AI
-An AI-powered educational tool that explains complex concepts through relatable stories and analogies using Google Gemini 2.5 Flash.
-### 💡 The Problem
-Students often get overwhelmed by dense textbook definitions. "Theory overload" makes learning boring and difficult.
+import streamlit as st
+import google.generativeai as genai
 
-### ✨ Our Solution
-StoryStream AI uses the **Gemini 1.5 Flash** model to turn complex topics into simple, real-world stories. We used **Streamlit** to create a clean, accessible interface for students.
+# Using key and the stable 2.5 flash model
+genai.configure(api_key=st.secrets["GEMINI_KEY"])
+model = genai.GenerativeModel('gemini-2.5-flash')
 
-### 🛠️ How to Run Locally
-1. Clone this repository.
-2. Install requirements:
-   `pip install streamlit google-generativeai`
-3. Run the app:
-   `streamlit run app.py`
+# ---  THE UI ---
+st.title("🚀 StoryStream AI")
+st.markdown("#### Turning complex concepts into simple stories.")
+
+topic = st.text_input("Enter a topic (e.g., Photosynthesis, Gravity, AI):", placeholder="Type here...")
+
+if st.button("Generate Story"):
+    if topic:
+        with st.spinner('Thinking of a story...'):
+            # This prompt ensures the "No Theory" rule is followed
+            prompt = f"Explain {topic} using only real-world stories and fun analogies. Strictly no theory or textbook definitions."
+            try:
+                response = model.generate_content(prompt)
+                st.success(f"### How to think about {topic}:")
+                st.write(response.text)
+            except Exception as e:
+                st.error("Connection Error. Please check your internet or API key.")
+    else:
+        st.warning("Please enter a topic first!")
